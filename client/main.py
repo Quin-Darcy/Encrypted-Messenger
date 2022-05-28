@@ -4,7 +4,6 @@ import client
 
 PORT = 12345
 HOSTNAME = "127.0.0.1"
-# Test comment
 
 def main():
     username = input("Username: ")
