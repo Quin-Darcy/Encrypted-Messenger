@@ -6,6 +6,7 @@ import select
 import threading
 
 HEADER_LENGTH = 10
+# Test comment
 
 class Client:
     def __init__(self, hostname, port, username):
