@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-import random
 import elgamal
 import socket
 import sys
-
+import select
+import threading
 
 HEADER_LENGTH = 10
 
@@ -25,12 +25,19 @@ class Client:
         self.comms_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.comms_socket.connect(self.address)
 
+    def close_session(self):
+        print("\nGoodbye.")
+        self.comms_socket.close()
+        sys.exit()
+
     def recv_msg(self):
         while True:
             try:
                 header = self.comms_socket.recv(HEADER_LENGTH)
+                
                 if not len(header):
-                    continue
+                    print("Connection closed by server")
+                    self.close_session()
 
                 msg_len = int(header.decode("utf-8").strip())
                 msg = self.comms_socket.recv(msg_len).decode("utf-8")
@@ -39,13 +46,10 @@ class Client:
 
             except Exception as e:
                 print("Reading error: {}".format(str(e)))
-                self.comms_socket.close()
-                sys.exit()
+                self.close_session()
 
             except KeyboardInterrupt:
-                print("\nGoodbye.")
-                self.comms_socket.close()
-                sys.exit()
+                self.close_session()
 
     def send_msg(self, msg):
         if not isinstance(msg, str):
@@ -79,22 +83,31 @@ class Client:
     def receive_pub_key(self):
         while True:
             msg = self.recv_msg()
-            if not msg:
-                continue
             self.enc_key = msg
             break
 
     def begin_comms(self):
         while True:
-            msg = input(f"{self.username} > ")
-            msg = self.pkc.encrypt(msg, self.enc_key)
-            enc_msg = ''
-            for cipher in msg:
-                enc_msg += str(cipher[0])+str(cipher[1])
+            socks_list = [sys.stdin, self.comms_socket]
+            r_socs, w, e = select.select(socks_list, [], [])
+            try:
+                for socs in r_socs:
+                    if socs == self.comms_socket:
+                        sys.stdout.flush()
+                        msg = self.recv_msg()
+                        print(msg)
+                    else:
+                        print(f"{self.username} > ", end="")
+                        sys.stdout.flush()
+                        msg = sys.stdin.readline()
+                        msg = self.pkc.encrypt(msg, self.enc_key)
+                        enc_msg = ''
+                        for cipher in msg:
+                            enc_msg += str(cipher[0])+str(cipher[1])
 
-            self.send_msg(enc_msg)
-
-            while True:
-                msg = self.recv_msg()
-                print(f"{msg}")
+                        self.send_msg(enc_msg)
+            
+            except KeyboardInterrupt:
+                self.close_session()
+                
 

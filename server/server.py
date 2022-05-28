@@ -48,7 +48,14 @@ class Server:
                 self.clients[cli_socket] = {"ADDR":cli_addr, "PUB_KEY":'',
                         "USERNAME":''}
                 break
-                
+
+    def close_session(self):
+        print("\nGoodbye.")
+        for cli_socket in self.active_sockets:
+            if cli_socket != self.srv_socket:
+                cli_socket.close()
+        self.srv_socket.close()
+        sys.exit()
 
     def send_msg(self, cli_socket, msg):
         # Checks if incoming msg is a string
@@ -59,6 +66,7 @@ class Server:
                 msg = str(msg)
             except:
                 print(f"Error in converting {msg} to str type")
+                self.close_session()
 
         msg = msg.encode("utf-8")
         header = f"{len(msg):<{HEADER_LENGTH}}".encode("utf-8")
@@ -90,13 +98,7 @@ class Server:
                 return False
 
             except KeyboardInterrupt:
-                print("\nGoodbye.")
-                for cli_socket in self.active_sockets:
-                    if cli_socket != self.srv_socket:
-                        cli_socket.close()
-
-                self.srv_socket.close()
-                sys.exit()
+                self.close_session()
 
     def exchange_keys(self):
         # Connect to clients and populate active_sockets and clients lists
@@ -113,6 +115,9 @@ class Server:
 
                     # Client sends back what it received
                     msg = self.recv_msg(cli_socket)
+                    if msg == False:
+                        print("Connection closed by {}".format(self.clients[cli_socket]["ADDR"]))
+                        self.close_session()
 
                     # If what it received matches, then it successfully
                     # received common_key
@@ -121,6 +126,11 @@ class Server:
                         self.send_msg(cli_socket, "STOP")
                         # Receive client's public key
                         cli_key = self.recv_msg(cli_socket)
+
+                        if cli_key == False:
+                            print("Error receiving client key.")
+                            self.close_session()
+
                         # Add client's public key to its info in clients list
                         self.clients[cli_socket]["PUB_KEY"] = cli_key
                         break
@@ -132,10 +142,14 @@ class Server:
             if cli_socket != self.srv_socket:
                 while True:
                     uname = self.recv_msg(cli_socket)
-                    if len(uname) > 0:
-                        self.send_msg(cli_socket, "STOP")
-                        self.clients[cli_socket]["USERNAME"] = uname
-                        break
+
+                    if uname == False:
+                        print("Error receiving client's username.")
+                        self.close_session()
+
+                    self.send_msg(cli_socket, "STOP")
+                    self.clients[cli_socket]["USERNAME"] = uname
+                    break
 
     def broadcast_pub_keys(self):
         for cli_socket1 in self.active_sockets:
@@ -152,6 +166,10 @@ class Server:
 
             for soc in read_socs:
                 msg = self.recv_msg(soc)
+                if msg == False:
+                    print("Connection closed by {}".format(self.clients[soc]["USERNAME"]))
+                    sys.exit()
+
                 uname = self.clients[soc]["USERNAME"]
                 print(f"{uname} > {msg}\n")
                 for cli_socket in self.clients:
