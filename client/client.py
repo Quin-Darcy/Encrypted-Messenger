@@ -89,23 +89,29 @@ class Client:
 
     def begin_comms(self):
         while True:
-            socks_list = [sys.stdin, self.comms_socket]
-            r_socs, w, e = select.select(socks_list, [], [])
             try:
+                socks_list = [sys.stdin, self.comms_socket]
+                r_socs, w, e = select.select(socks_list, [], [])
+                
                 for socs in r_socs:
                     if socs == self.comms_socket:
-                        sys.stdout.flush()
+                        uname = self.recv_msg()
                         msg = self.recv_msg()
-                        print(msg)
+                        # To be added: msg = self.pkc.decrypt(msg)
+                        print(uname+msg)
                     else:
-                        print(f"{self.username} > ", end="")
-                        sys.stdout.flush()
                         msg = sys.stdin.readline()
+                        print("\r")
+                        sys.stdout.flush()
+                        print(f"{self.username} > ", msg)
+    
                         msg = self.pkc.encrypt(msg, self.enc_key)
                         enc_msg = ''
                         for cipher in msg:
                             enc_msg += str(cipher[0])+str(cipher[1])
 
+                        uname = self.username+" > "
+                        self.send_msg(uname)
                         self.send_msg(enc_msg)
             
             except KeyboardInterrupt:

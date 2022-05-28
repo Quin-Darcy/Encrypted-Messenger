@@ -161,17 +161,24 @@ class Server:
                             self.send_msg(cli_socket2, key)
 
     def start_comms(self):
+        for cli_socket in self.active_sockets:
+            if cli_socket != self.srv_socket:
+                self.send_msg(cli_socket, "Server > ")
+                self.send_msg(cli_socket, "Begin typing ...\n")
         while True:
-            read_socs, _, err_socs = select.select(self.active_sockets, [], [])
+            try:
+                read_socs, _, err_socs = select.select(self.active_sockets, [], [])
 
-            for soc in read_socs:
-                msg = self.recv_msg(soc)
-                if msg == False:
-                    print("Connection closed by {}".format(self.clients[soc]["USERNAME"]))
-                    sys.exit()
+                for soc in read_socs:
+                    msg = self.recv_msg(soc)
+                    if msg == False:
+                        print("Connection closed by {}".format(self.clients[soc]["USERNAME"]))
+                        self.close_session()
 
-                uname = self.clients[soc]["USERNAME"]
-                print(f"{uname} > {msg}\n")
-                for cli_socket in self.clients:
-                    if cli_socket != soc:
-                        self.send_msg(cli_socket, msg)
+                    uname = self.clients[soc]["USERNAME"]
+                    print(f"{uname} > {msg}\n")
+                    for cli_socket in self.clients:
+                        if cli_socket != soc:
+                            self.send_msg(cli_socket, msg)
+            except KeyboardInterrupt:
+                self.close_session()
