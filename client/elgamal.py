@@ -13,15 +13,19 @@ class Elgamal:
         return pow(self.common_key[1], self.prv_key, self.common_key[0])
 
     def encrypt(self, msg, key) -> list:
-        crypt_msg = []
+        crypt_msg = ''
         encoded_msg = utils.Utils().encode_msg(msg)
 
         for block in encoded_msg:
             k = random.randint(1, self.common_key[0])
             c1 = pow(self.common_key[1], k, self.common_key[0])
             c2 = block*pow(int(key), k, self.common_key[0])
-            crypt_msg.append([c1, c2])
+            crypt_msg += str(c1)+":"+str(c2)+"-"
+
+        crypt_msg = crypt_msg[:-1]
 
         return crypt_msg
 
-
+    def decrypt(self, msg):
+        ciphers = [[int(x.split(":")[0]), int(x.split(":")[1])] for x in msg.split("-")] 
+        return ciphers

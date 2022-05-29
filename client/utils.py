@@ -9,6 +9,20 @@ class Utils:
         pass
 
     @staticmethod
+    def QR(a, b):
+        return [a, b, (a-a%b)//b, a%b]
+
+    def eucl_algo(self, a, b):
+        decomps = [self.QR(a, b)]
+        k = len(decomps)-1
+        r = decomps[k][1]
+        while r != 0:
+            decomps.append(self.QR(decomps[k][1], decomps[k][3]))
+            r = decomps[k+1][3]
+            k += 1
+        print(decomps[len(decomps)-2][3])
+
+    @staticmethod
     def get_bin(n) -> str:
         # Decimal number comes in and returns Big-Endian
         # binary representation
