@@ -23,7 +23,7 @@ class Utils:
         print(decomps[len(decomps)-2][3])
 
     @staticmethod
-    def get_bin(n) -> str:
+    def get_byte(n) -> str:
         # Decimal number comes in and returns Big-Endian
         # binary representation
         bnry = ''
@@ -35,6 +35,18 @@ class Utils:
                 bnry += '1'
                 n = diff
         return bnry 
+
+    @staticmethod
+    def get_bin(n) -> str:
+        bnry = ''
+        for i in range(8*BLOCKSIZE):
+            diff = n-pow(2, 8*BLOCKSIZE-1-i)
+            if diff < 0:
+                bnry += '0'
+            else:
+                bnry += '1'
+                n = diff
+        return bnry
 
     @staticmethod
     def get_dec(bnry) -> int:
@@ -78,7 +90,7 @@ class Utils:
         for i in range(len(msg_bytes)//BLOCKSIZE):
             block = ''
             for j in range(BLOCKSIZE):
-                block += self.get_bin(msg_bytes[i*BLOCKSIZE+j])
+                block += self.get_byte(msg_bytes[i*BLOCKSIZE+j])
             blocks.append(self.get_dec(block))
 
         return blocks

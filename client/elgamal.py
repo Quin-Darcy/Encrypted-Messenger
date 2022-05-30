@@ -28,4 +28,13 @@ class Elgamal:
 
     def decrypt(self, msg):
         ciphers = [[int(x.split(":")[0]), int(x.split(":")[1])] for x in msg.split("-")] 
-        return ciphers
+        blocks = []
+        for i in range(len(ciphers)):
+            c1 = ciphers[i][0]
+            c2 = ciphers[i][1]
+            d = pow(c1, self.common_key[0]-1-self.prv_key, self.common_key[0])*c2
+            d = utils.Utils().get_bin(d % self.common_key[0])
+            blocks.append(d)
+
+        
+        return blocks
