@@ -22,6 +22,13 @@ class Utils:
             k += 1
         print(decomps[len(decomps)-2][3])
 
+    def break_into_bytes(self, blocks):
+        byte_blocks = []
+        for b in blocks:
+            for i in range(BLOCKSIZE-1):
+                byte_blocks.append(self.get_dec(b[8*i:8*(i+1)]))
+        return byte_blocks
+
     @staticmethod
     def get_byte(n) -> str:
         # Decimal number comes in and returns Big-Endian
@@ -46,6 +53,8 @@ class Utils:
             else:
                 bnry += '1'
                 n = diff
+
+
         return bnry
 
     @staticmethod

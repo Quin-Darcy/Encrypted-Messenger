@@ -36,5 +36,6 @@ class Elgamal:
             d = utils.Utils().get_bin(d % self.common_key[0])
             blocks.append(d)
 
+        blocks = utils.Utils().break_into_bytes(blocks)
         
         return blocks
