@@ -18,6 +18,6 @@ This is a script run on the client side. It is initialized with the *common_key*
 
 ### The __encrypt(msg, key)__ method
 This method is passed two arguments: 
- * *msg* - The user's string type input; 
- * *key* - another client's public key.
+* *msg* - The user's string type input;
+* *key* - Another client's public key. 
 Before encrypting *msg*, it first goes through some processing.  
