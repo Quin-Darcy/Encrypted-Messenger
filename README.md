@@ -8,6 +8,8 @@ A simple multi-client chat program with sockets. Users can decide which public k
 
 ---
 
+
+
 ## How It Works
 
 ### pub_key.py (Server side)
