@@ -97,7 +97,7 @@ class Client:
                     if socs == self.comms_socket:
                         uname = self.recv_msg()
                         msg = self.recv_msg()
-                        # To be added: msg = self.pkc.decrypt(msg)
+                        msg = self.pkc.decrypt(msg)
                         print(uname+msg)
                     else:
                         msg = sys.stdin.readline()
@@ -105,10 +105,7 @@ class Client:
                         sys.stdout.flush()
                         print(f"{self.username} > ", msg)
     
-                        msg = self.pkc.encrypt(msg, self.enc_key)
-                        enc_msg = ''
-                        for cipher in msg:
-                            enc_msg += str(cipher[0])+str(cipher[1])
+                        enc_msg = self.pkc.encrypt(msg, self.enc_key)
 
                         uname = self.username+" > "
                         self.send_msg(uname)
