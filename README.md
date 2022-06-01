@@ -27,3 +27,4 @@ Before encrypting *msg*, it first goes through some processing.
 3. Depending on how many characters (or bytes) were in the message, its difference from the next largest multiple of *BLOCKSIZE* is calculated and *msg_bytes* is then filled with as many null bytes as is equal to that difference. 
 4. A new list is filled by splitting *msg_bytes* into byte-sized pieces and each of those pieces is converted into Big-Endian binary bytes. Next, the list is subgrouped into *BLOCKSIZE* pieces. So if *BLOCKSIZE=4*, then each block would be $8\cdot 4=32$ bits. Finally, each block is converted to base-10. So if *BLOCKSIZE=4*, we have broken the message down into 32-bit numerical chunks, and these chunks are what is stored in the *blocks* list. 
  
+After the message has been encoded, it is stored in *encoded_msg*. An *ephemeral key*, *k*, is then generated. This key is ephemeral because it is only used to encrypt a single message before a next one is generated.  
