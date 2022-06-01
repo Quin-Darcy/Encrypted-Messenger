@@ -23,4 +23,7 @@ This method is passed two arguments:
 
 Before encrypting *msg*, it first goes through some processing.  
 1. *msg* is passed into the __encode_msg()__ method from *utils.py*.
-2.  th 
+  1. The ASCII value of each character in the *msg* is placed into a list, *msg_bytes*
+  2. Depending on how many characters (or bytes) were in the message, its difference from the next largest multiple of *BLOCKSIZE* is calculated and *msg_bytes* is then filled with as many null bytes as is equal to that difference. 
+  3. A new list is filled by splitting *msg_bytes* into byte-sized pieces and each of those pieces is converted into Big-Endian binary bytes. Next, the list is subgrouped into *BLOCKSIZE* pieces. So if *BLOCKSIZE=4*, then each block would be $8\cdot 4=32$ bits. Finally, each block is converted to base-10. So if *BLOCKSIZE=4*, we have broken the message down into 32-bit numerical chunks, and these chunks are what is stored in the *blocks* list. 
+  4. 
