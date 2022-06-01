@@ -22,3 +22,5 @@ This method is passed two arguments:
 * *key* - Another client's public key. 
 
 Before encrypting *msg*, it first goes through some processing.  
+1. *msg* is passed into the __encode_msg()__ method from *utils.py*.
+2.  th 
