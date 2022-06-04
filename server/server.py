@@ -161,10 +161,10 @@ class Server:
                             self.send_msg(cli_socket2, key)
 
     def start_comms(self):
-        for cli_socket in self.active_sockets:
-            if cli_socket != self.srv_socket:
-                self.send_msg(cli_socket, "Server > ")
-                self.send_msg(cli_socket, "Begin typing ...\n")
+        #for cli_socket in self.active_sockets:
+        #    if cli_socket != self.srv_socket:
+        #        self.send_msg(cli_socket, "Server > ")
+        #        self.send_msg(cli_socket, "Begin typing ...\n")
         while True:
             try:
                 read_socs, _, err_socs = select.select(self.active_sockets, [], [])

@@ -15,9 +15,9 @@ class Elgamal:
     def encrypt(self, msg, key) -> list:
         crypt_msg = ''
         encoded_msg = utils.Utils().encode_msg(msg)
-        k = random.randint(1, self.common_key[0])
+        
         for block in encoded_msg:
-            print("encrypt: ", block)
+            k = random.randint(1, self.common_key[0])
             c1 = pow(self.common_key[1], k, self.common_key[0])
             c2 = block*pow(int(key), k, self.common_key[0])
             crypt_msg += str(c1)+":"+str(c2)+"-"
@@ -33,7 +33,6 @@ class Elgamal:
             c1 = ciphers[i][0]
             c2 = ciphers[i][1]
             d = pow(c1, self.common_key[0]-1-self.prv_key, self.common_key[0])*c2
-            print("decrypt: ", d % self.common_key[0])
             d = utils.Utils().get_bin(d % self.common_key[0])
             blocks.append(d)
 
