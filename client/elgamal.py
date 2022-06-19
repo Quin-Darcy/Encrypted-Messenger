@@ -42,3 +42,5 @@ class Elgamal:
             string += chr(b)
         
         return string
+
+        # ghgh
