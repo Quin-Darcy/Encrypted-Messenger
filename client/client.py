@@ -8,6 +8,24 @@ import threading
 
 HEADER_LENGTH = 10
 
+
+class KeyboardThread(threading.Thread):
+
+    def __init__(self, input_cbk = None, exit_cbk = None, name='keyboard-input-thread'):
+        self.input_cbk = input_cbk
+        self.exit_cbk = exit_cbk
+        super(KeyboardThread, self).__init__(name=name)
+        self.start()
+
+    def run(self):
+        while True:
+            try:
+                self.input_cbk(input()) #waits to get input + Return
+            except EOFError as eof:
+                print("Exiting chat. Goodbye!")
+                self.exit_cbk()
+
+
 class Client:
     def __init__(self, hostname, port, username):
         self.address = (hostname, port)
@@ -20,6 +38,7 @@ class Client:
         self.exchange_keys()
         self.send_username()
         self.receive_pub_key()
+        keyboard_thread = KeyboardThread(self.process_keyboard_input, self.close_session)
         self.begin_comms()
 
     def create_socket(self):
@@ -90,7 +109,7 @@ class Client:
     def begin_comms(self):
         while True:
             try:
-                socks_list = [sys.stdin, self.comms_socket]
+                socks_list = [self.comms_socket]
                 r_socs, w, e = select.select(socks_list, [], [])
                 
                 for socs in r_socs:
@@ -99,19 +118,17 @@ class Client:
                         msg = self.recv_msg()
                         msg = self.pkc.decrypt(msg)
                         print(uname+msg)
-                    else:
-                        msg = sys.stdin.readline()
-                        print("\r")
-                        sys.stdout.flush()
-                        print(f"{self.username} > ", msg)
-    
-                        enc_msg = self.pkc.encrypt(msg, self.enc_key)
-
-                        uname = self.username+" > "
-                        self.send_msg(uname)
-                        self.send_msg(enc_msg)
             
             except KeyboardInterrupt:
                 self.close_session()
-                
+        
+    def process_keyboard_input(self, msg):
+        # print("\r")
+        sys.stdout.flush()
+        print(f"{self.username} > ", msg)
 
+        enc_msg = self.pkc.encrypt(msg, self.enc_key)
+
+        uname = self.username+" > "
+        self.send_msg(uname)
+        self.send_msg(enc_msg)
